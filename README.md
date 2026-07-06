@@ -1,96 +1,96 @@
 # 👟 Casual Shoes Image Similarity Search
 
-Sistem pencarian gambar sepatu kasual (*image similarity search*) berbasis **pretrained CNN feature extractor** — tanpa training ulang. Diberikan satu gambar sepatu sebagai *query*, sistem akan mengembalikan sepatu-sepatu lain yang paling mirip dari database.
+An image similarity search system for casual shoes, built on **pretrained CNN feature extractors** — no retraining involved. Given a query shoe image, the system retrieves the most visually similar shoes from a database.
 
-## 🧠 Arsitektur
+## 🧠 Architecture
 
-- **Feature Extractor**: `VGG16` & `ResNet50` (pretrained ImageNet, `include_top=False`, `pooling='avg'`) — dipakai langsung sebagai *embedding extractor* tanpa proses training.
-- **Dataset**: [`paramaggarwal/fashion-product-images-dataset`](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset) (Kaggle), difilter hanya kategori `articleType == 'Casual Shoes'`.
-- **Similarity Metric**: Cosine Similarity antar vektor embedding.
+- **Feature Extractor**: `VGG16` & `ResNet50` (pretrained on ImageNet, `include_top=False`, `pooling='avg'`) — used directly as embedding extractors with no additional training.
+- **Dataset**: [`paramaggarwal/fashion-product-images-dataset`](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset) (Kaggle), filtered to only `articleType == 'Casual Shoes'`.
+- **Similarity Metric**: Cosine similarity between embedding vectors.
 
-## 🔄 Alur Pipeline
+## 🔄 Pipeline Overview
 
-| # | Tahap | Keterangan |
+| # | Stage | Description |
 |---|---|---|
 | 1 | Data Collection | Download & merge `styles.csv` + `images.csv` |
 | 2 | Filter Casual Shoes | `articleType == 'Casual Shoes'` |
 | 3 | Data Splitting | Train / Validation / Test (80/10/10) |
-| 4 | Feature Extraction | Embedding dari VGG16 & ResNet50 |
+| 4 | Feature Extraction | Embeddings from VGG16 & ResNet50 |
 | 5 | Similarity Search | Cosine similarity, top-K retrieval |
-| 6 | Visualisasi | Grid gambar query vs hasil top-5 |
-| 7 | Evaluasi | Mean Reciprocal Rank (MRR) & Recall@K dengan anotasi manusia |
-| 8 | Demo Interaktif | Gradio App (3 tab: Search, Bandingkan Metric, Hasil Evaluasi) |
-| 9 | Deployment | Export siap-pakai ke Hugging Face Spaces |
+| 6 | Visualization | Grid of query vs. top-5 results |
+| 7 | Evaluation | Mean Reciprocal Rank (MRR) & Recall@K with human annotation |
+| 8 | Interactive Demo | Gradio app (3 tabs: Search, Compare Metrics, Evaluation Results) |
+| 9 | Deployment | Ready-to-upload export to Hugging Face Spaces |
 
-## 📊 Evaluasi
+## 📊 Evaluation
 
-Kualitas hasil retrieval diukur menggunakan:
-- **Mean Reciprocal Rank (MRR)** — dihitung dari anotasi manual (klik gambar paling relevan), disimpan otomatis ke Excel (`mrr_annotations.xlsx`).
-- **Recall@5** dan **Recall@10** — berdasarkan relevansi kombinasi `gender` + `baseColour`.
+Retrieval quality is measured using:
+- **Mean Reciprocal Rank (MRR)** — computed from manual annotations (clicking the most relevant image), auto-saved to Excel (`mrr_annotations.xlsx`).
+- **Recall@5** and **Recall@10** — based on relevance defined by matching `gender` + `baseColour`.
 
-Hasil evaluasi divisualisasikan dalam bentuk bar chart perbandingan antar kombinasi model × metric.
+Evaluation results are visualized as bar charts comparing model × metric combinations.
 
-## 🖥️ Demo Interaktif (Gradio)
+## 🖥️ Interactive Demo (Gradio)
 
-Aplikasi Gradio menyediakan 3 tab:
-1. **🔍 Search** — Upload gambar sepatu → hasil top-K lengkap dengan gambar, label, warna, dan skor similarity.
-2. **📊 Bandingkan Metric** — Menampilkan top-5 hasil dari semua metric similarity untuk satu query sekaligus.
-3. **📈 Hasil Evaluasi** — Tabel dan chart perbandingan performa semua kombinasi model.
+The Gradio app provides 3 tabs:
+1. **🔍 Search** — Upload a shoe image → get top-K results complete with images, labels, colors, and similarity scores.
+2. **📊 Compare Metrics** — Displays top-5 results across all similarity metrics for a single query at once.
+3. **📈 Evaluation Results** — Table and chart comparing the performance of all model combinations.
 
-## 🚀 Cara Menjalankan
+## 🚀 Getting Started
 
-### 1. Clone repository
+### 1. Clone the repository
 ```bash
-git clone https://github.com/<username>/<nama-repo>.git
-cd <nama-repo>
+git clone https://github.com/<username>/<repo-name>.git
+cd <repo-name>
 ```
 
-### 2. Siapkan data
-Notebook mendukung dua mode:
-- **Mode ZIP lokal**: letakkan `casual_shoes_data.csv` dan `casual_shoes_images_dataset.zip` di direktori kerja.
-- **Mode Kaggle**: gunakan `kagglehub` untuk mengunduh dataset asli secara langsung (kode tersedia namun di-*comment*, aktifkan sesuai kebutuhan).
+### 2. Prepare the data
+The notebook supports two modes:
+- **Local ZIP mode**: place `casual_shoes_data.csv` and `casual_shoes_images_dataset.zip` in the working directory.
+- **Kaggle mode**: use `kagglehub` to download the original dataset directly (code is included but commented out — enable it as needed).
 
 ### 3. Install dependencies
 ```bash
 pip install kagglehub gradio tensorflow seaborn openpyxl ipywidgets pandas numpy scikit-learn pillow matplotlib
 ```
 
-### 4. Jalankan notebook
-Buka dan jalankan `Casual_Shoes_Image_Similarity_v8.ipynb` di Jupyter Notebook, Google Colab, atau lingkungan sejenis secara berurutan dari atas ke bawah.
+### 4. Run the notebook
+Open and run `Casual_Shoes_Image_Similarity_v8.ipynb` in Jupyter Notebook, Google Colab, or a similar environment, executing the cells in order from top to bottom.
 
-## 📦 Deploy ke Hugging Face Spaces
+## 📦 Deploying to Hugging Face Spaces
 
-Notebook menyediakan cell otomatis untuk mengemas semua *artifact* yang dibutuhkan (`app.py`, `requirements.txt`, embedding `.pkl`, gambar evaluasi, dsb.) ke dalam satu file ZIP siap unggah:
+The notebook includes a cell that automatically packages all required artifacts (`app.py`, `requirements.txt`, embedding `.pkl` files, evaluation charts, etc.) into a single ZIP file ready for upload:
 
-1. Jalankan cell **"Export ke Hugging Face Spaces"** di notebook — akan menghasilkan `casual_shoes_hf_space.zip`.
-2. Buka [huggingface.co/new-space](https://huggingface.co/new-space), pilih **SDK: Gradio**, lalu buat Space baru.
-3. Extract isi ZIP tersebut dan upload semua filenya ke tab **Files** pada Space.
-4. Commit — Space akan otomatis build dan berjalan.
+1. Run the **"Export to Hugging Face Spaces"** cell in the notebook — this generates `casual_shoes_hf_space.zip`.
+2. Go to [huggingface.co/new-space](https://huggingface.co/new-space), select **SDK: Gradio**, and create a new Space.
+3. Extract the ZIP file and upload all its contents to the **Files** tab of the Space.
+4. Commit the changes — the Space will automatically build and start running.
 
-## 📁 Struktur Output Utama
+## 📁 Main Output Structure
 
 ```
 casual_shoes_artifacts/
-├── db_vgg16.pkl              # Database embedding VGG16
-├── db_resnet50.pkl           # Database embedding ResNet50
-├── casual_shoes_preview.png  # Preview sampel dataset
-├── eval_comparison.png       # Chart perbandingan evaluasi
-├── eval_heatmap.png          # Heatmap hasil evaluasi
-└── sim_*.png                 # Visualisasi hasil similarity per model
+├── db_vgg16.pkl              # VGG16 embedding database
+├── db_resnet50.pkl           # ResNet50 embedding database
+├── casual_shoes_preview.png  # Dataset sample preview
+├── eval_comparison.png       # Evaluation comparison chart
+├── eval_heatmap.png          # Evaluation heatmap
+└── sim_*.png                 # Per-model similarity visualization
 ```
 
 ## 🛠️ Tech Stack
 
 - Python, TensorFlow/Keras (VGG16, ResNet50)
 - Pandas, NumPy, scikit-learn
-- Gradio (demo interaktif)
-- Matplotlib, Seaborn (visualisasi)
-- ipywidgets, openpyxl (anotasi & evaluasi MRR)
+- Gradio (interactive demo)
+- Matplotlib, Seaborn (visualization)
+- ipywidgets, openpyxl (MRR annotation & evaluation)
 
-## 📄 Lisensi
+## 📄 License
 
-Sesuaikan dengan kebutuhanmu, misalnya [MIT License](https://opensource.org/licenses/MIT).
+Adjust as needed, e.g. [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-> Dataset yang digunakan mengikuti lisensi dari sumber aslinya di Kaggle: [paramaggarwal/fashion-product-images-dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset).
+> The dataset used follows the original license from its source on Kaggle: [paramaggarwal/fashion-product-images-dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset).
